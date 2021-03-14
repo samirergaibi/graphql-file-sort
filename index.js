@@ -1,5 +1,25 @@
 const fs = require("fs");
-const { isKeyword, isKeywordLetter } = require("./utils");
+
+const keywordLetters = [
+  "e",
+  "n",
+  "u",
+  "m",
+  "t",
+  "y",
+  "p",
+  "s",
+  "c",
+  "a",
+  "l",
+  "r",
+  "i",
+];
+const isKeywordLetter = letter =>
+  keywordLetters.some(value => value === letter);
+
+const keywords = ["enum", "type", "scalar", "input"];
+const isKeyword = input => keywords.some(keyword => keyword === input);
 
 const getSchemaItems = filePath => {
   const schemaItems = [];
@@ -44,4 +64,25 @@ const getSchemaItems = filePath => {
   return schemaItems;
 };
 
-module.exports = getSchemaItems;
+const createSortedFile = (schemaItems, file) => {
+  const formattedContent = schemaItems.sort().join("");
+
+  fs.writeFile(file, formattedContent, err => {
+    if (err) {
+      throw new Error(err);
+    }
+
+    console.log(`Succefully created file ${file}!`);
+  });
+};
+
+const filePath = process.argv[2];
+if (!filePath) {
+  console.log("No filepath provided to the script.");
+  process.exit(9);
+}
+
+const DEFAULT_OUTPUT_FILE_NAME = "sorted.graphql";
+
+const schemaItems = getSchemaItems(filePath);
+createSortedFile(schemaItems, DEFAULT_OUTPUT_FILE_NAME);
